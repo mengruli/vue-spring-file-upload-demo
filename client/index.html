@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Vue file upload demo</title>
+<!-- development version, includes helpful console warnings -->
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+</head>
+
+<body>
+    <div id='app'>
+        <p>file upload with form data demo</p>
+        <form enctype="multipart/form-data" novalidate>
+            <p>form data</p>
+            <label>first name</label>
+            <input type="text" v-model="form.firstName">
+            <label>last name</label>
+            <input type="text" v-model="form.lastName">
+            <br>
+            <p>files</p>
+            <input type="file" accept="image/*" ref="file" v-on:change="uploadFile($event)">
+            <br>
+            <input type="file" accept="image/*" ref="file" v-on:change="uploadFile($event)">
+            <br>
+            <button v-on:click="removeFiles()">Remove files</button>
+            <button v-on:click="submitForm($event)">Submit</button>
+        </form>
+    </div>
+    
+</body>
+
+<script>
+    var app = new Vue({
+        el: '#app',
+        data: {
+            form: {
+                firstName: '',
+                lastName:''
+            },
+            files: []
+        },
+        methods: {
+            submitForm: function(event){
+                event.preventDefault();
+                
+                let fd = new FormData()
+                fd.append('data', JSON.stringify(this.form))
+                for(let i = 0; i < this.files.length; i++)
+                {
+            
+                    let val = this.files[i]
+                    fd.append('files', val);
+                }
+                console.log(fd);
+                axios.post('http://localhost:5000/files', fd, {
+                    headers: {
+                        'Content-Type': 'multipart/form-data'
+                    }
+                }).then((result) => {
+                    console.log(result);
+                }).catch((err) => {
+                    
+                });
+            },
+            removeFiles: function(){
+                this.files = [];
+            },
+            uploadFile: function(event){
+                this.files.push(event.target.files[0])
+            }
+        }
+    })
+</script>
+</html>
